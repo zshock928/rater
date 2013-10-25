@@ -3,7 +3,8 @@
 
 #include "dyn_array.h"
 
-typedef enum {
+typedef enum
+{
     SKIP,
     IGNORE,
     THUMBS_UP
@@ -11,7 +12,8 @@ typedef enum {
 
 size_t action_to_str(Action *a, char *result, size_t maxlen);
 
-typedef struct Rating {
+typedef struct Rating
+{
     Action a;
     // time wrt song start at which the action occurred
     // if IGNORE, then this is meaningless
@@ -27,7 +29,8 @@ DYNAMIC_ARRAY_DECL(NameList, name_list, String);
 DYNAMIC_ARRAY_DECL(RatingList, rating_list, Rating);
 DYNAMIC_ARRAY_DECL(RatingTable, rating_table, RatingList);
 
-typedef struct SongRatings {
+typedef struct SongRatings
+{
     size_t num_songs;
     NameList names;
     RatingTable ratings;

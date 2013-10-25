@@ -111,6 +111,7 @@ void song_ratings_free(SongRatings *sr)
     rating_table_free(&sr->ratings);
 }
 
+/*
 int main(int argc, char *argv[])
 {
     char result[1001] = {0};
@@ -143,3 +144,4 @@ int main(int argc, char *argv[])
     song_ratings_free(&sr);
     return 0;
 }
+*/
