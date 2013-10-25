@@ -6,7 +6,9 @@ SRCS=\
 	dyn_array.c \
 	song_ratings.c \
 	song.c \
-	player.c
+	player.c \
+	locator.c
+
 OBJS=$(SRCS:%.c=%.o)
 
 ifneq ($(MAKECMDGOALS), clean)
@@ -15,12 +17,14 @@ endif
 
 INCS=
 SYSINCS=
+LIBS=\
+	-lncurses
 
 GST_FLAGS=$(shell pkg-config --cflags-only-I gstreamer-0.10)
 CFLAGS=-O0 -g $(GST_FLAGS)
 
 $(TARGET) : $(OBJS)
-	gcc -o $@ $(OBJS) $(shell pkg-config --libs gstreamer-0.10)
+	gcc -o $@ $(OBJS) $(shell pkg-config --libs gstreamer-0.10) $(LIBS)
 
 %.o: %.c
 	gcc $(CFLAGS)\
@@ -29,7 +33,7 @@ $(TARGET) : $(OBJS)
 	-o $@ $<
 
 clean :
-	rm -rf *.o *.d *~ core $(TARGET) *.html
+	rm -rf *.o *.d *~ core $(TARGET) *.html vgcore.*
 
 .PHONY: all clean
 .SUFFIXES:

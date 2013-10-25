@@ -8,6 +8,7 @@ music player
 receives:
 
 - song to play next
+- whether to skip
 
 does:
 
@@ -15,13 +16,25 @@ does:
 
 sends:
 
-- rating action (skip/thumbs up/ignore)
-- request for next song; this is always sent after rating action
+- request for next song
 
 notes:
 
-- the act of rating/skipping could be a separate program? maybe communicate
-  over a port? eventually stream from home? (security issues?)
+command-line gui/controller
+---------------------------
+receives:
+
+- what song is to be played
+
+does:
+
+- queries currently played song for position
+- displays info on terminal
+
+sends:
+
+- rating action (skip/thumbs up)
+- toggle repeat
 
 rating logger
 -------------
@@ -48,15 +61,40 @@ sends:
 
 notes:
 
+song locator
+------------
+receives:
+
+does:
+
+- finds location of all songs within a folder
+- can be queried for song info
+
+sends:
+
+- nothing?
+
+notes:
+
+- use gstreamer to determine audio type/playable? probably easier to start with
+  one type (mp3) and just look at file extension
+- run in a separate thread checking file system for changes? inotify?
+  g_io_add_watch?
+
+  * if file changes occur, then some notification will need to sent out
+  * need locking mechanisms
+
 song selector
 -------------
 receives:
 
 - rating action
 - request for next song
+- toggle repeat
 
 does:
 
+- queries for initial list of songs
 - computes what next song should be upon request
 
 sends:
