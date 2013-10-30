@@ -1,11 +1,11 @@
 #include "player.h"
 
-#include "assert.h"
+#include <assert.h>
+
 #include "locator.h"
 
 static GMainLoop *loop;
-static SongList sl;
-static Song *curr_song;
+static GSList *songs, *curr_song_it;
 
 static gboolean cb_error(GstBus *bus, GstMessage *message, gpointer data)
 {
@@ -28,12 +28,13 @@ static gboolean cb_eos(GstBus *bus, GstMessage *message, gpointer data)
 
     Player *p = (Player *)data;
     gst_element_set_state((p->play), GST_STATE_READY);
+    curr_song_it = curr_song_it->next;
 
-    if (++curr_song >= sl.data + sl.count) {
+    if (curr_song_it) {
+        play(p, curr_song_it->data);
+    } else {
         g_print("Finished playing all songs, exiting.\n");
         g_main_loop_quit(loop);
-    } else {
-        play(p, curr_song);
     }
     return TRUE;
 }
@@ -59,42 +60,43 @@ void player_free(Player *p)
     gst_object_unref(GST_OBJECT(p->play));
 }
 
-bool play(Player *p, Song *s)
+gboolean play(Player *p, Song *s)
 {
-    char uri[200] = "file://";
-    char *curr = strchr(uri, '\0');
-    char *end = uri + 200;
-    assert(curr != NULL);
-    string_to_str(&s->filepath, curr, end - curr);
-    printf("Playing %s\n", uri);
+    printf("Playing %s\n", s->name->str);
 
-    g_object_set(G_OBJECT(p->play), "uri", uri, NULL);
+    GString *uri = g_string_new("file://");
+    g_string_append(uri, s->filepath->str);
+    g_object_set(G_OBJECT(p->play), "uri", uri->str, NULL);
     gst_element_set_state((p->play), GST_STATE_PLAYING);
+    g_string_free(uri, TRUE);
 }
 
-int main(int argc, char *argv[])
+gint main(gint argc, gchar *argv[])
 {
-    song_list_init(&sl);
-    get_songs_abs(argv[1], &sl);
-    if (sl.count == 0) {
-        song_list_free(&sl);
+    gint err = get_songs_abs(argv[1], &songs);
+    if (err) return err;
+    if (songs == NULL) {
         fprintf(stderr, "No songs found in %s, exiting.\n", argv[1]);
         return 1;
     }
-    curr_song = sl.data;
-
+    curr_song_it = songs;
     gst_init(&argc, &argv);
 
     Player p;
     player_init(&p);
 
     // mimic an asynchronous request
-    play(&p, curr_song);
+    play(&p, curr_song_it->data);
 
     loop = g_main_loop_new(NULL, FALSE);
     g_main_loop_run(loop);
 
-    song_list_free(&sl);
+    GSList *song_it;
+    for (song_it = songs; song_it; song_it = song_it->next) {
+        song_free(song_it->data);
+        g_free(song_it->data);
+    }
+    g_slist_free(songs);
     player_free(&p);
     g_main_loop_unref(loop);
     return 0;

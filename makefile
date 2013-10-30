@@ -2,12 +2,18 @@ TARGET=a.out
 all: $(TARGET)
 
 #SRCS=$(shell find -name '*.c')
+
+#SRCS=\
+#	song_ratings.c \
+#	song.c \
+#	player.c \
+#	locator.c
+
 SRCS=\
-	dyn_array.c \
-	song_ratings.c \
 	song.c \
-	player.c \
-	locator.c
+	ratings.c \
+	locator.c \
+	player.c
 
 OBJS=$(SRCS:%.c=%.o)
 

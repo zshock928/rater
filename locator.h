@@ -1,13 +1,11 @@
 #ifndef __locator_h__
 #define __locator_h__
 
-#include "dyn_array.h"
+#include <glib.h>
 #include "song.h"
 
-DYNAMIC_ARRAY_DECL(SongList, song_list, Song);
-
-// absdirpath should not end with a /, which is the case when produced by
-// canonicalize_file_name
-int get_songs_abs(const char *absdirpath, SongList *sl);
+// absdirpath should be the same path as when produced by canonicalize_file_name
+// i.e. it should not end with a '/'
+gint get_songs_abs(const gchar *absdirpath, GSList **songs);
 
 #endif  // __locator_h__
